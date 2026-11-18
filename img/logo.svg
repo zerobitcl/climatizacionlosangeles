@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Clima Los Ángeles">
+  <defs>
+    <linearGradient id="face" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#E2E8F0"/>
+      <stop offset="100%" stop-color="#94A3B8"/>
+    </linearGradient>
+  </defs>
+  <circle cx="64" cy="64" r="60" fill="#0B1F3A"/>
+  <circle cx="64" cy="64" r="52" fill="none" stroke="#0EA5E9" stroke-width="3" opacity=".55"/>
+  <rect x="28" y="42" width="52" height="28" rx="6" fill="url(#face)"/>
+  <rect x="34" y="48" width="34" height="4" rx="2" fill="#0B1F3A" opacity=".28"/>
+  <rect x="34" y="56" width="26" height="3" rx="1.5" fill="#0EA5E9"/>
+  <circle cx="70" cy="56" r="3.5" fill="#0B1F3A" opacity=".25"/>
+  <path d="M88 40c10 6 10 18 0 24" fill="none" stroke="#0EA5E9" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M96 34c14 8 14 26 0 34" fill="none" stroke="#7DD3FC" stroke-width="3" stroke-linecap="round" opacity=".85"/>
+  <circle cx="42" cy="88" r="7" fill="#F97316"/>
+  <path d="M42 78v4M42 94v4M32 88h4M48 88h4M35 81l2.5 2.5M46.5 92.5 49 95M35 95l2.5-2.5M46.5 83.5 49 81" stroke="#F97316" stroke-width="2" stroke-linecap="round"/>
+</svg>

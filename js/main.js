@@ -6,12 +6,12 @@ const SITE_CONFIG = {
   brandName: "Clima Los Ángeles",
   phoneDisplay: "+56 9 0000 0000",
   phoneE164: "56900000000",
-  whatsappNumber: "56900000000",
   email: "contacto@climatizacionlosangeles.cl",
   domain: "https://climatizacionlosangeles.cl/",
   city: "Los Ángeles",
-  defaultWhatsAppMessage:
-    "Hola, quiero cotizar instalación o mantención de aire acondicionado en Los Ángeles.",
+  // FormSubmit: primera vez pide confirmación al correo. Luego entrega leads por email.
+  formEndpoint: "https://formsubmit.co/ajax/contacto@climatizacionlosangeles.cl",
+  gaMeasurementId: "G-R0V2LSK44J",
 };
 
 const BTU_SIZES = [9000, 12000, 18000, 24000];
@@ -45,14 +45,10 @@ function trackEvent(name, payload = {}) {
   window.dataLayer = window.dataLayer || [];
   window.dataLayer.push(detail);
   document.dispatchEvent(new CustomEvent("site:track", { detail }));
-  if (typeof console !== "undefined") {
-    console.info("[track]", detail);
-  }
-}
 
-function buildWhatsAppURL(message) {
-  const text = encodeURIComponent(message);
-  return `https://wa.me/${SITE_CONFIG.whatsappNumber}?text=${text}`;
+  if (typeof window.gtag === "function") {
+    window.gtag("event", name, payload);
+  }
 }
 
 function applyBrandConfig() {
@@ -74,25 +70,6 @@ function applyBrandConfig() {
 
   document.querySelectorAll("[data-email-link]").forEach((el) => {
     el.setAttribute("href", `mailto:${SITE_CONFIG.email}`);
-  });
-
-  const waLinks = [
-    ...document.querySelectorAll("[data-whatsapp-nav]"),
-    ...document.querySelectorAll("[data-whatsapp-cta]"),
-    ...document.querySelectorAll("[data-whatsapp-float]"),
-  ];
-
-  waLinks.forEach((el) => {
-    el.setAttribute("href", buildWhatsAppURL(SITE_CONFIG.defaultWhatsAppMessage));
-    el.addEventListener("click", () => {
-      const source =
-        el.hasAttribute("data-whatsapp-float")
-          ? "float"
-          : el.hasAttribute("data-whatsapp-nav")
-            ? "nav"
-            : "cta_band";
-      trackEvent("whatsapp_click", { source });
-    });
   });
 }
 
@@ -124,35 +101,116 @@ function initMobileNav() {
   });
 }
 
+function setFormStatus(form, type, message) {
+  const status = form.querySelector("[data-form-status]");
+  if (!status) return;
+  status.hidden = false;
+  status.dataset.state = type;
+  status.textContent = message;
+}
+
+function fillQuoteFromBTU({ btu, m2, sol, uso }) {
+  const form = document.getElementById("quote-form");
+  if (!form) return;
+
+  if (m2 && form.metros) form.metros.value = String(m2);
+  if (form.servicio && !form.servicio.value) form.servicio.value = "Instalación";
+
+  const notes = form.querySelector('[name="mensaje"]');
+  if (notes) {
+    notes.value = `Cotización desde calculadora BTU: ${btu.toLocaleString("es-CL")} BTU · ${m2} m² · Sol ${SUN_LABEL[sol]} · Uso ${USE_LABEL[uso]}`;
+  }
+
+  form.scrollIntoView({ behavior: "smooth", block: "center" });
+  form.querySelector('[name="nombre"]')?.focus();
+}
+
+async function submitLead(form, payload, eventName) {
+  const submitBtn = form.querySelector('[type="submit"]');
+  const originalLabel = submitBtn?.innerHTML;
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Enviando…";
+  }
+
+  setFormStatus(form, "pending", "Enviando tu solicitud…");
+
+  try {
+    const res = await fetch(SITE_CONFIG.formEndpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        ...payload,
+        _subject: `Lead web — ${SITE_CONFIG.brandName}`,
+        _template: "table",
+        _captcha: "false",
+      }),
+    });
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    trackEvent(eventName, payload);
+    form.reset();
+    setFormStatus(
+      form,
+      "ok",
+      "Listo. Recibimos tu solicitud y te contactamos a la brevedad."
+    );
+  } catch (err) {
+    trackEvent("lead_form_error", { reason: String(err?.message || err) });
+    setFormStatus(
+      form,
+      "error",
+      `No pudimos enviar el formulario. Escríbenos a ${SITE_CONFIG.email} o llama al ${SITE_CONFIG.phoneDisplay}.`
+    );
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalLabel || "Enviar cotización";
+    }
+  }
+}
+
 function initQuoteForm() {
   const form = document.getElementById("quote-form");
   if (!form) return;
 
-  form.addEventListener("submit", (e) => {
+  form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const data = new FormData(form);
     const nombre = String(data.get("nombre") || "").trim();
+    const telefono = String(data.get("telefono") || "").trim();
+    const email = String(data.get("email") || "").trim();
     const sector = String(data.get("sector") || "").trim();
     const servicio = String(data.get("servicio") || "").trim();
     const metros = String(data.get("metros") || "").trim();
+    const mensaje = String(data.get("mensaje") || "").trim();
 
-    if (!nombre || !sector || !servicio || !metros) {
+    if (!nombre || !telefono || !sector || !servicio || !metros) {
       trackEvent("quote_form_invalid");
       form.reportValidity();
       return;
     }
 
-    const message = [
-      `Hola, soy ${nombre}.`,
-      `Quiero cotizar *${servicio}* de aire acondicionado en ${SITE_CONFIG.city}.`,
-      `Sector/Barrio: ${sector}`,
-      `Metros aproximados: ${metros} m²`,
-      `Marca de interés: ${SITE_CONFIG.brandName}`,
-    ].join("\n");
-
-    trackEvent("quote_form_submit", { servicio, sector, metros });
-    window.open(buildWhatsAppURL(message), "_blank", "noopener,noreferrer");
+    await submitLead(
+      form,
+      {
+        nombre,
+        telefono,
+        email: email || "(no informado)",
+        sector,
+        servicio,
+        metros: `${metros} m²`,
+        mensaje: mensaje || "(sin mensaje)",
+        ciudad: SITE_CONFIG.city,
+        origen: "hero_quote_form",
+      },
+      "quote_form_submit"
+    );
   });
 }
 
@@ -207,8 +265,10 @@ function initBTUCalculator() {
   const form = document.getElementById("btu-form");
   const resultBtu = document.getElementById("result-btu");
   const resultCopy = document.getElementById("result-copy");
-  const waBtn = document.getElementById("btu-whatsapp");
-  if (!form || !resultBtu || !resultCopy || !waBtn) return;
+  const quoteBtn = document.getElementById("btu-quote");
+  if (!form || !resultBtu || !resultCopy || !quoteBtn) return;
+
+  let lastResult = null;
 
   const syncDimensionInputs = () => {
     const largo = parseFloat(form.largo.value);
@@ -242,24 +302,19 @@ function initBTUCalculator() {
 
     resultBtu.textContent = `${btu.toLocaleString("es-CL")} BTU`;
     resultCopy.textContent = explanation;
+    lastResult = { btu, m2, sol, uso };
 
-    const message = [
-      `Hola, calculé mi capacidad con la web de ${SITE_CONFIG.brandName}.`,
-      `Quiero cotizar un equipo de *${btu.toLocaleString("es-CL")} BTU* instalado en ${SITE_CONFIG.city}.`,
-      `Datos: ${m2} m² · Sol: ${SUN_LABEL[sol]} · Uso: ${USE_LABEL[uso]}`,
-    ].join("\n");
-
-    waBtn.href = buildWhatsAppURL(message);
-    waBtn.textContent = `Cotizar equipo de ${btu.toLocaleString("es-CL")} BTU instalado en Los Ángeles`;
-    waBtn.classList.remove("is-disabled");
-    waBtn.setAttribute("aria-disabled", "false");
+    quoteBtn.classList.remove("is-disabled");
+    quoteBtn.setAttribute("aria-disabled", "false");
+    quoteBtn.textContent = `Cotizar equipo de ${btu.toLocaleString("es-CL")} BTU`;
 
     trackEvent("btu_calc_submit", { m2, sol, uso, btu, raw: Math.round(raw) });
   });
 
-  waBtn.addEventListener("click", () => {
-    if (waBtn.getAttribute("aria-disabled") === "true") return;
-    trackEvent("btu_whatsapp_click", { label: waBtn.textContent });
+  quoteBtn.addEventListener("click", () => {
+    if (quoteBtn.getAttribute("aria-disabled") === "true" || !lastResult) return;
+    trackEvent("btu_quote_click", { btu: lastResult.btu });
+    fillQuoteFromBTU(lastResult);
   });
 }
 
@@ -280,6 +335,16 @@ function initPhoneTracking() {
   });
 }
 
+function initContactAnchors() {
+  document.querySelectorAll("[data-scroll-contact]").forEach((el) => {
+    el.addEventListener("click", () => {
+      trackEvent("contact_cta_click", {
+        source: el.getAttribute("data-scroll-contact") || "unknown",
+      });
+    });
+  });
+}
+
 function initYear() {
   const year = document.getElementById("year");
   if (year) year.textContent = String(new Date().getFullYear());
@@ -292,6 +357,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initBTUCalculator();
   initFAQTracking();
   initPhoneTracking();
+  initContactAnchors();
   initYear();
   trackEvent("page_view", { path: location.pathname });
 });
