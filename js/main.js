@@ -4,7 +4,7 @@
  * Al arrendar: completa phoneE164 + whatsappEnabled = true.
  */
 const SITE_CONFIG = {
-  brandName: "Clima Los Ángeles",
+  brandName: "Aire Acondicionado Los Ángeles",
   phoneDisplay: "",
   phoneE164: "",
   whatsappEnabled: false,
