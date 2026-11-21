@@ -1,16 +1,17 @@
 /**
  * Clima Los Ángeles — Rank & Rent lead engine
- * Cambia SOLO SITE_CONFIG para rebrandear sin tocar el HTML/CSS/SEO estructural.
+ * Pre-arriendo: deja phoneE164 vacío → se ocultan tel/WhatsApp.
+ * Al arrendar: completa phoneE164 + whatsappEnabled = true.
  */
 const SITE_CONFIG = {
   brandName: "Clima Los Ángeles",
-  phoneDisplay: "+56 9 0000 0000",
-  phoneE164: "56900000000",
-  email: "contacto@climatizacionlosangeles.cl",
+  phoneDisplay: "",
+  phoneE164: "",
+  whatsappEnabled: false,
+  email: "eduardoers@outlook.cl",
   domain: "https://climatizacionlosangeles.cl/",
   city: "Los Ángeles",
-  // FormSubmit: primera vez pide confirmación al correo. Luego entrega leads por email.
-  formEndpoint: "https://formsubmit.co/ajax/contacto@climatizacionlosangeles.cl",
+  formEndpoint: "https://formsubmit.co/ajax/eduardoers@outlook.cl",
   gaMeasurementId: "G-R0V2LSK44J",
 };
 
@@ -40,10 +41,36 @@ const SUN_LABEL = {
   alta: "Alta",
 };
 
+const INSULATION_FACTOR = {
+  buena: 0.9,
+  media: 1,
+  mala: 1.2,
+};
+
+const ROOF_FACTOR = {
+  teja: 1,
+  zinc: 1.15,
+  losa: 0.95,
+};
+
+const FLOOR_FACTOR = {
+  1: 1,
+  2: 1.08,
+};
+
+const WINDOW_FACTOR = {
+  termopanel: 0.92,
+  simple: 1.12,
+};
+
+function hasPhone() {
+  return Boolean(SITE_CONFIG.phoneE164 && String(SITE_CONFIG.phoneE164).replace(/\D/g, "").length >= 8);
+}
+
 function trackEvent(name, payload = {}) {
   const detail = { name, ...payload, ts: Date.now() };
   window.dataLayer = window.dataLayer || [];
-  window.dataLayer.push(detail);
+  window.dataLayer.push({ event: name, ...payload, ts: detail.ts });
   document.dispatchEvent(new CustomEvent("site:track", { detail }));
 
   if (typeof window.gtag === "function") {
@@ -51,17 +78,52 @@ function trackEvent(name, payload = {}) {
   }
 }
 
+function loadGA4() {
+  if (!SITE_CONFIG.gaMeasurementId || window.__gaLoaded) return;
+  window.__gaLoaded = true;
+
+  window.dataLayer = window.dataLayer || [];
+  function gtag() {
+    window.dataLayer.push(arguments);
+  }
+  window.gtag = gtag;
+  gtag("js", new Date());
+  gtag("config", SITE_CONFIG.gaMeasurementId, { anonymize_ip: true });
+
+  const s = document.createElement("script");
+  s.async = true;
+  s.src = `https://www.googletagmanager.com/gtag/js?id=${SITE_CONFIG.gaMeasurementId}`;
+  document.head.appendChild(s);
+}
+
+function deferGA4() {
+  if (!SITE_CONFIG.gaMeasurementId) return;
+
+  const trigger = () => {
+    loadGA4();
+    cleanup();
+  };
+
+  const cleanup = () => {
+    ["scroll", "pointerdown", "keydown", "touchstart"].forEach((evt) => {
+      window.removeEventListener(evt, trigger, { passive: true });
+    });
+  };
+
+  ["scroll", "pointerdown", "keydown", "touchstart"].forEach((evt) => {
+    window.addEventListener(evt, trigger, { once: true, passive: true });
+  });
+
+  if ("requestIdleCallback" in window) {
+    requestIdleCallback(trigger, { timeout: 4500 });
+  } else {
+    setTimeout(trigger, 4500);
+  }
+}
+
 function applyBrandConfig() {
   document.querySelectorAll("[data-brand-name]").forEach((el) => {
     el.textContent = SITE_CONFIG.brandName;
-  });
-
-  document.querySelectorAll("[data-phone-text]").forEach((el) => {
-    el.textContent = SITE_CONFIG.phoneDisplay;
-  });
-
-  document.querySelectorAll("[data-phone-link]").forEach((el) => {
-    el.setAttribute("href", `tel:+${SITE_CONFIG.phoneE164}`);
   });
 
   document.querySelectorAll("[data-email-text]").forEach((el) => {
@@ -71,6 +133,59 @@ function applyBrandConfig() {
   document.querySelectorAll("[data-email-link]").forEach((el) => {
     el.setAttribute("href", `mailto:${SITE_CONFIG.email}`);
   });
+
+  const phoneReady = hasPhone();
+  document.body.classList.toggle("has-phone", phoneReady);
+  document.body.classList.toggle("no-phone", !phoneReady);
+
+  document.querySelectorAll("[data-phone-only]").forEach((el) => {
+    el.hidden = !phoneReady;
+  });
+
+  if (phoneReady) {
+    document.querySelectorAll("[data-phone-text]").forEach((el) => {
+      el.textContent = SITE_CONFIG.phoneDisplay || `+${SITE_CONFIG.phoneE164}`;
+    });
+    document.querySelectorAll("[data-phone-link]").forEach((el) => {
+      el.setAttribute("href", `tel:+${SITE_CONFIG.phoneE164}`);
+    });
+  }
+
+  initWhatsAppButton();
+}
+
+function buildWhatsAppUrl(extra = "") {
+  if (!hasPhone() || !SITE_CONFIG.whatsappEnabled) return null;
+  const page = document.title || SITE_CONFIG.brandName;
+  const base = `Hola, quiero cotizar climatización en ${SITE_CONFIG.city}. Vengo desde: ${page}.`;
+  const text = encodeURIComponent(extra ? `${base} ${extra}` : base);
+  return `https://wa.me/${SITE_CONFIG.phoneE164}?text=${text}`;
+}
+
+function initWhatsAppButton() {
+  const existing = document.getElementById("wa-float");
+  const url = buildWhatsAppUrl();
+
+  if (!url) {
+    if (existing) existing.remove();
+    return;
+  }
+
+  if (existing) {
+    existing.setAttribute("href", url);
+    return;
+  }
+
+  const a = document.createElement("a");
+  a.id = "wa-float";
+  a.className = "wa-float";
+  a.href = url;
+  a.target = "_blank";
+  a.rel = "noopener noreferrer";
+  a.setAttribute("aria-label", "Escribir por WhatsApp");
+  a.innerHTML = `<svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><path fill="currentColor" d="M20.5 3.5A11 11 0 0 0 3.4 17.7L2 22l4.4-1.4A11 11 0 1 0 20.5 3.5zM12 20.2a9.1 9.1 0 0 1-4.6-1.3l-.3-.2-2.7.9.9-2.6-.2-.3A9.1 9.1 0 1 1 12 20.2zm5-6.8c-.3-.1-1.6-.8-1.9-.9-.2-.1-.4-.1-.6.1-.2.3-.7.9-.8 1-.2.2-.3.2-.6.1a7.4 7.4 0 0 1-2.2-1.4 8.2 8.2 0 0 1-1.5-1.9c-.2-.3 0-.4.1-.6l.5-.6c.1-.2.1-.3 0-.5l-.9-2.1c-.2-.5-.5-.5-.6-.5h-.5c-.2 0-.5.1-.7.3-.2.3-.9.9-.9 2.1s.9 2.4 1 2.6c.1.2 1.8 2.8 4.4 3.9 2.6 1.1 2.6.7 3.1.7.5 0 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2-.1-.1-.3-.2-.6-.3z"/></svg>`;
+  a.addEventListener("click", () => trackEvent("whatsapp_click", { source: "float" }));
+  document.body.appendChild(a);
 }
 
 function initMobileNav() {
@@ -109,7 +224,7 @@ function setFormStatus(form, type, message) {
   status.textContent = message;
 }
 
-function fillQuoteFromBTU({ btu, m2, sol, uso }) {
+function fillQuoteFromBTU({ btu, m2, sol, uso, extras = "" }) {
   const form = document.getElementById("quote-form");
   if (!form) return;
 
@@ -118,7 +233,7 @@ function fillQuoteFromBTU({ btu, m2, sol, uso }) {
 
   const notes = form.querySelector('[name="mensaje"]');
   if (notes) {
-    notes.value = `Cotización desde calculadora BTU: ${btu.toLocaleString("es-CL")} BTU · ${m2} m² · Sol ${SUN_LABEL[sol]} · Uso ${USE_LABEL[uso]}`;
+    notes.value = `Cotización desde calculadora BTU: ${btu.toLocaleString("es-CL")} BTU · ${m2} m² · Sol ${SUN_LABEL[sol]} · Uso ${USE_LABEL[uso]}${extras ? ` · ${extras}` : ""}`;
   }
 
   form.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -161,10 +276,13 @@ async function submitLead(form, payload, eventName) {
     );
   } catch (err) {
     trackEvent("lead_form_error", { reason: String(err?.message || err) });
+    const phoneHint = hasPhone()
+      ? ` o llama al ${SITE_CONFIG.phoneDisplay}`
+      : "";
     setFormStatus(
       form,
       "error",
-      `No pudimos enviar el formulario. Escríbenos a ${SITE_CONFIG.email} o llama al ${SITE_CONFIG.phoneDisplay}.`
+      `No pudimos enviar el formulario. Escríbenos a ${SITE_CONFIG.email}${phoneHint}.`
     );
   } finally {
     if (submitBtn) {
@@ -190,7 +308,8 @@ function initQuoteForm() {
     const metros = String(data.get("metros") || "").trim();
     const mensaje = String(data.get("mensaje") || "").trim();
 
-    if (!nombre || !telefono || !sector || !servicio || !metros) {
+    // CRO: nombre, teléfono, sector y servicio son el mínimo; respeta required HTML extra
+    if (!nombre || !telefono || !sector || !servicio || !form.checkValidity()) {
       trackEvent("quote_form_invalid");
       form.reportValidity();
       return;
@@ -204,10 +323,11 @@ function initQuoteForm() {
         email: email || "(no informado)",
         sector,
         servicio,
-        metros: `${metros} m²`,
+        metros: metros ? `${metros} m²` : "(no informado)",
         mensaje: mensaje || "(sin mensaje)",
         ciudad: SITE_CONFIG.city,
-        origen: "hero_quote_form",
+        origen: form.dataset.origin || "quote_form",
+        pagina: location.pathname,
       },
       "quote_form_submit"
     );
@@ -215,9 +335,9 @@ function initQuoteForm() {
 }
 
 function resolveSquareMeters(form) {
-  const largo = parseFloat(form.largo.value);
-  const ancho = parseFloat(form.ancho.value);
-  const totales = parseFloat(form.metrosTotales.value);
+  const largo = parseFloat(form.largo?.value);
+  const ancho = parseFloat(form.ancho?.value);
+  const totales = parseFloat(form.metrosTotales?.value);
 
   if (!Number.isNaN(totales) && totales > 0) return totales;
   if (!Number.isNaN(largo) && !Number.isNaN(ancho) && largo > 0 && ancho > 0) {
@@ -271,15 +391,15 @@ function initBTUCalculator() {
   let lastResult = null;
 
   const syncDimensionInputs = () => {
-    const largo = parseFloat(form.largo.value);
-    const ancho = parseFloat(form.ancho.value);
-    if (!Number.isNaN(largo) && !Number.isNaN(ancho) && largo > 0 && ancho > 0) {
+    const largo = parseFloat(form.largo?.value);
+    const ancho = parseFloat(form.ancho?.value);
+    if (!Number.isNaN(largo) && !Number.isNaN(ancho) && largo > 0 && ancho > 0 && form.metrosTotales) {
       form.metrosTotales.value = String(Number((largo * ancho).toFixed(1)));
     }
   };
 
-  form.largo.addEventListener("input", syncDimensionInputs);
-  form.ancho.addEventListener("input", syncDimensionInputs);
+  form.largo?.addEventListener("input", syncDimensionInputs);
+  form.ancho?.addEventListener("input", syncDimensionInputs);
 
   form.addEventListener("submit", (e) => {
     e.preventDefault();
@@ -287,34 +407,87 @@ function initBTUCalculator() {
     const m2 = resolveSquareMeters(form);
     const sol = form.querySelector('input[name="sol"]:checked')?.value || "media";
     const uso = form.querySelector('input[name="uso"]:checked')?.value || "dormitorio";
+    const aislacion = form.querySelector('input[name="aislacion"]:checked')?.value || "media";
+    const techo = form.querySelector('input[name="techo"]:checked')?.value || "teja";
+    const piso = form.querySelector('input[name="piso"]:checked')?.value || "1";
+    const ventanas = form.querySelector('input[name="ventanas"]:checked')?.value || "simple";
 
     if (!m2) {
-      form.metrosTotales.setCustomValidity("Ingresa m² totales o largo y ancho.");
-      form.metrosTotales.reportValidity();
-      form.metrosTotales.setCustomValidity("");
+      if (form.metrosTotales) {
+        form.metrosTotales.setCustomValidity("Ingresa m² totales o largo y ancho.");
+        form.metrosTotales.reportValidity();
+        form.metrosTotales.setCustomValidity("");
+      }
       trackEvent("btu_calc_invalid");
       return;
     }
 
-    const raw = m2 * SUN_FACTOR[sol] * USE_FACTOR[uso];
+    const advanced =
+      (INSULATION_FACTOR[aislacion] || 1) *
+      (ROOF_FACTOR[techo] || 1) *
+      (FLOOR_FACTOR[piso] || 1) *
+      (WINDOW_FACTOR[ventanas] || 1);
+
+    const raw = m2 * SUN_FACTOR[sol] * USE_FACTOR[uso] * advanced;
     const btu = nearestBTU(raw);
-    const explanation = explainBTU({ btu, m2, sol, uso });
+    let explanation = explainBTU({ btu, m2, sol, uso });
+
+    const extrasParts = [];
+    if (form.querySelector('input[name="aislacion"]')) extrasParts.push(`aislación ${aislacion}`);
+    if (form.querySelector('input[name="techo"]')) extrasParts.push(`techo ${techo}`);
+    if (form.querySelector('input[name="piso"]')) extrasParts.push(`piso ${piso}`);
+    if (form.querySelector('input[name="ventanas"]')) extrasParts.push(`ventanas ${ventanas}`);
+    const extras = extrasParts.join(", ");
+
+    if (extras) {
+      explanation += ` Ajuste local: ${extras}.`;
+    }
 
     resultBtu.textContent = `${btu.toLocaleString("es-CL")} BTU`;
     resultCopy.textContent = explanation;
-    lastResult = { btu, m2, sol, uso };
+    lastResult = { btu, m2, sol, uso, extras };
 
     quoteBtn.classList.remove("is-disabled");
     quoteBtn.setAttribute("aria-disabled", "false");
     quoteBtn.textContent = `Cotizar equipo de ${btu.toLocaleString("es-CL")} BTU`;
 
-    trackEvent("btu_calc_submit", { m2, sol, uso, btu, raw: Math.round(raw) });
+    const waUrl = buildWhatsAppUrl(
+      `Necesito ~${btu.toLocaleString("es-CL")} BTU para ${m2} m² (${USE_LABEL[uso]}).`
+    );
+    if (waUrl) {
+      quoteBtn.dataset.wa = waUrl;
+    }
+
+    trackEvent("btu_calc_submit", {
+      m2,
+      sol,
+      uso,
+      btu,
+      raw: Math.round(raw),
+      aislacion,
+      techo,
+      piso,
+      ventanas,
+    });
   });
 
   quoteBtn.addEventListener("click", () => {
     if (quoteBtn.getAttribute("aria-disabled") === "true" || !lastResult) return;
     trackEvent("btu_quote_click", { btu: lastResult.btu });
-    fillQuoteFromBTU(lastResult);
+
+    const contactForm = document.getElementById("quote-form");
+    if (contactForm) {
+      fillQuoteFromBTU(lastResult);
+      return;
+    }
+
+    const params = new URLSearchParams({
+      btu: String(lastResult.btu),
+      m2: String(lastResult.m2),
+      sol: lastResult.sol,
+      uso: lastResult.uso,
+    });
+    window.location.href = `/?cotizar=1&${params.toString()}#contacto`;
   });
 }
 
@@ -350,6 +523,35 @@ function initYear() {
   if (year) year.textContent = String(new Date().getFullYear());
 }
 
+function hydrateQuoteFromURL() {
+  const params = new URLSearchParams(location.search);
+  if (!params.has("cotizar") && !params.has("btu")) return;
+
+  const form = document.getElementById("quote-form");
+  if (!form) return;
+
+  const btu = params.get("btu");
+  const m2 = params.get("m2");
+  const sol = params.get("sol");
+  const uso = params.get("uso");
+
+  if (m2 && form.metros) form.metros.value = m2;
+  if (form.servicio) form.servicio.value = "Instalación";
+
+  if (btu) {
+    const notes = form.querySelector('[name="mensaje"]');
+    if (notes) {
+      notes.value = `Cotización desde calculadora BTU: ${Number(btu).toLocaleString("es-CL")} BTU${m2 ? ` · ${m2} m²` : ""}${sol ? ` · Sol ${SUN_LABEL[sol] || sol}` : ""}${uso ? ` · Uso ${USE_LABEL[uso] || uso}` : ""}`;
+    }
+  }
+
+  if (location.hash === "#contacto" || params.has("cotizar")) {
+    requestAnimationFrame(() => {
+      form.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+  }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   applyBrandConfig();
   initMobileNav();
@@ -359,5 +561,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initPhoneTracking();
   initContactAnchors();
   initYear();
+  hydrateQuoteFromURL();
+  deferGA4();
   trackEvent("page_view", { path: location.pathname });
 });

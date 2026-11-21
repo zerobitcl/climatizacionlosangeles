@@ -361,7 +361,6 @@ textarea {
   letter-spacing: -0.03em;
   color: var(--sky-soft);
   text-shadow: 0 8px 30px rgba(14, 165, 233, 0.35);
-  animation: riseIn 0.7s var(--ease) both;
 }
 
 .hero h1 {
@@ -370,8 +369,7 @@ textarea {
   font-size: clamp(1.65rem, 4.6vw, 2.75rem);
   line-height: 1.15;
   letter-spacing: -0.03em;
-  max-width: 18ch;
-  animation: riseIn 0.8s var(--ease) 0.05s both;
+  max-width: 22ch;
 }
 
 .hero-lead {
@@ -379,7 +377,6 @@ textarea {
   color: rgba(248, 250, 252, 0.86);
   max-width: 54ch;
   font-size: 1.02rem;
-  animation: riseIn 0.8s var(--ease) 0.12s both;
 }
 
 .trust-list {
@@ -388,7 +385,6 @@ textarea {
   padding: 0;
   display: grid;
   gap: 0.65rem;
-  animation: riseIn 0.8s var(--ease) 0.18s both;
 }
 
 .trust-list li {
@@ -420,10 +416,6 @@ textarea {
 
 .air-wave.w3 {
   animation-delay: 0.8s;
-}
-
-.hero-form-wrap {
-  animation: riseIn 0.85s var(--ease) 0.2s both;
 }
 
 .quote-form {
@@ -1174,4 +1166,460 @@ textarea {
   .services-grid {
     grid-template-columns: repeat(4, 1fr);
   }
+}
+
+/* ---------- Pre-arriendo: ocultar NAP vacío ---------- */
+.no-phone [data-phone-only],
+body:not(.has-phone) [data-phone-only] {
+  display: none !important;
+}
+
+/* ---------- WhatsApp float ---------- */
+.wa-float {
+  position: fixed;
+  right: 1rem;
+  bottom: 5.2rem;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #25D366, #128C7E);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 12px 30px rgba(37, 211, 102, 0.45);
+  z-index: 60;
+}
+
+.wa-float:hover {
+  transform: scale(1.06);
+}
+
+/* ---------- Breadcrumbs ---------- */
+.breadcrumbs {
+  width: min(100% - 2rem, var(--container));
+  margin: 1rem auto 0;
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+.breadcrumbs ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.breadcrumbs li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.breadcrumbs li:not(:last-child)::after {
+  content: "/";
+  color: #94A3B8;
+  margin-left: 0.35rem;
+}
+
+.breadcrumbs a {
+  color: var(--sky);
+  font-weight: 600;
+}
+
+.breadcrumbs a:hover {
+  text-decoration: underline;
+}
+
+.breadcrumbs [aria-current="page"] {
+  color: var(--navy);
+  font-weight: 700;
+}
+
+/* ---------- Page hero (spokes) ---------- */
+.page-hero {
+  position: relative;
+  overflow: hidden;
+  color: #fff;
+  background:
+    linear-gradient(135deg, rgba(7, 21, 38, 0.94) 0%, rgba(11, 31, 58, 0.9) 55%, rgba(14, 90, 140, 0.78) 100%),
+    linear-gradient(160deg, #071526, #0B1F3A 50%, #0C4A6E);
+  padding: 2.5rem 0 3rem;
+}
+
+.page-hero .hero-inner {
+  margin: 1.5rem auto 0;
+  display: grid;
+  gap: 1.5rem;
+}
+
+.page-hero h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.55rem, 4vw, 2.45rem);
+  line-height: 1.18;
+  letter-spacing: -0.03em;
+  max-width: 22ch;
+}
+
+.page-hero .hero-lead {
+  margin: 0.85rem 0 0;
+  color: rgba(248, 250, 252, 0.88);
+  max-width: 58ch;
+}
+
+.page-hero .hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+@media (min-width: 900px) {
+  .page-hero .hero-inner {
+    grid-template-columns: 1.2fr 0.8fr;
+    align-items: start;
+    margin-top: 2rem;
+  }
+}
+
+/* ---------- Spoke / hub cards ---------- */
+.spoke-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.spoke-card {
+  display: grid;
+  gap: 0.7rem;
+  padding: 1.35rem 1.25rem 1.4rem;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(11, 31, 58, 0.08);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+  transition: transform 0.25s var(--ease), box-shadow 0.25s;
+  color: inherit;
+}
+
+.spoke-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow);
+}
+
+.spoke-card h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.12rem;
+  letter-spacing: -0.02em;
+  color: var(--navy);
+  line-height: 1.3;
+}
+
+.spoke-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.spoke-card .spoke-link {
+  margin-top: 0.25rem;
+  font-weight: 750;
+  color: var(--sky);
+}
+
+@media (min-width: 900px) {
+  .spoke-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1100px) {
+  .spoke-grid.cols-4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* ---------- Comparison table (Inverter vs leña/pellet) ---------- */
+.compare-wrap {
+  overflow-x: auto;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(11, 31, 58, 0.08);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+  padding: 0.5rem;
+}
+
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.94rem;
+  min-width: 560px;
+}
+
+.compare-table th,
+.compare-table td {
+  padding: 0.85rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(11, 31, 58, 0.08);
+  vertical-align: top;
+}
+
+.compare-table th {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--sky);
+  background: rgba(14, 165, 233, 0.06);
+}
+
+.compare-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.compare-table .highlight {
+  background: rgba(14, 165, 233, 0.08);
+  font-weight: 750;
+  color: var(--navy);
+}
+
+.compare-note {
+  margin: 0.85rem 0 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+/* ---------- Process / steps ---------- */
+.process-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.9rem;
+  counter-reset: step;
+}
+
+.process-list li {
+  position: relative;
+  padding: 1.15rem 1.15rem 1.15rem 4.1rem;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(11, 31, 58, 0.08);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+  counter-increment: step;
+}
+
+.process-list li::before {
+  content: counter(step);
+  position: absolute;
+  left: 1rem;
+  top: 1.1rem;
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(145deg, var(--sky), #0284C7);
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.95rem;
+}
+
+.process-list h3 {
+  margin: 0 0 0.35rem;
+  font-size: 1.05rem;
+  color: var(--navy);
+  letter-spacing: -0.01em;
+}
+
+.process-list p {
+  margin: 0;
+  color: var(--muted);
+}
+
+@media (min-width: 900px) {
+  .process-list.cols-2 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* ---------- Price cards ---------- */
+.price-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.price-card {
+  padding: 1.35rem 1.25rem;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(11, 31, 58, 0.08);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+}
+
+.price-card h3 {
+  margin: 0 0 0.35rem;
+  font-family: var(--font-display);
+  font-size: 1.08rem;
+  color: var(--navy);
+}
+
+.price-card .price {
+  margin: 0.4rem 0 0.75rem;
+  font-size: clamp(1.35rem, 3vw, 1.7rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--sky);
+  font-variant-numeric: tabular-nums;
+}
+
+.price-card ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: var(--muted);
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.92rem;
+}
+
+@media (min-width: 900px) {
+  .price-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ---------- Brand / entity chips ---------- */
+.brand-chips {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.brand-chips li {
+  padding: 0.5rem 0.9rem;
+  border-radius: 999px;
+  background: rgba(11, 31, 58, 0.06);
+  border: 1px solid rgba(11, 31, 58, 0.1);
+  color: var(--navy);
+  font-weight: 700;
+  font-size: 0.92rem;
+}
+
+/* ---------- Content prose blocks ---------- */
+.prose-block {
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(11, 31, 58, 0.08);
+  border-radius: var(--radius);
+  padding: 1.35rem 1.25rem;
+  box-shadow: var(--shadow-soft);
+}
+
+.prose-block h3 {
+  margin: 0 0 0.55rem;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  color: var(--navy);
+}
+
+.prose-block p {
+  margin: 0 0 0.85rem;
+  color: var(--muted);
+}
+
+.prose-block p:last-child {
+  margin-bottom: 0;
+}
+
+.prose-block ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: var(--muted);
+  display: grid;
+  gap: 0.4rem;
+}
+
+.content-grid {
+  display: grid;
+  gap: 1.25rem;
+}
+
+@media (min-width: 900px) {
+  .content-grid.two {
+    grid-template-columns: 1.1fr 0.9fr;
+  }
+}
+
+/* ---------- Symptom / checklist cards ---------- */
+.check-grid {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.check-card {
+  padding: 1.1rem 1.15rem;
+  border-left: 3px solid var(--accent);
+  background: rgba(255, 255, 255, 0.75);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.check-card h3 {
+  margin: 0 0 0.35rem;
+  font-size: 1.02rem;
+  color: var(--navy);
+}
+
+.check-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.94rem;
+}
+
+@media (min-width: 900px) {
+  .check-grid.cols-2 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* ---------- Related links ---------- */
+.related-links {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.related-links a {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.15rem;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(11, 31, 58, 0.08);
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  color: var(--navy);
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.related-links a:hover {
+  border-color: var(--sky);
+  transform: translateX(3px);
+  color: var(--sky);
+}
+
+.related-links a span {
+  color: var(--sky);
+}
+
+/* ---------- Compact quote on spokes ---------- */
+.quote-form.compact .form-sub {
+  margin-bottom: 0.85rem;
+}
+
+/* ---------- Contact float offset when WA present ---------- */
+body.has-phone .contact-float {
+  bottom: 1rem;
 }

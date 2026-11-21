@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="Clima Los Ángeles  Aire acondicionado en Los Ángeles">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#071526"/>
+      <stop offset="55%" stop-color="#0B1F3A"/>
+      <stop offset="100%" stop-color="#0C4A6E"/>
+    </linearGradient>
+    <linearGradient id="ac" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#E2E8F0"/>
+      <stop offset="100%" stop-color="#94A3B8"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <circle cx="980" cy="120" r="220" fill="#0EA5E9" opacity=".18"/>
+  <circle cx="160" cy="540" r="180" fill="#F97316" opacity=".14"/>
+  <text x="80" y="150" fill="#7DD3FC" font-family="Segoe UI, Arial, sans-serif" font-size="42" font-weight="700">Clima Los Ángeles</text>
+  <text x="80" y="250" fill="#F8FAFC" font-family="Segoe UI, Arial, sans-serif" font-size="64" font-weight="800">Aire Acondicionado</text>
+  <text x="80" y="325" fill="#F8FAFC" font-family="Segoe UI, Arial, sans-serif" font-size="64" font-weight="800">en Los Ángeles</text>
+  <text x="80" y="400" fill="#CBD5E1" font-family="Segoe UI, Arial, sans-serif" font-size="28">Instalación · Mantención · Reparación Inverter</text>
+  <text x="80" y="460" fill="#94A3B8" font-family="Segoe UI, Arial, sans-serif" font-size="24">Frío en verano · Calefacción limpia en invierno</text>
+  <rect x="780" y="220" width="300" height="90" rx="14" fill="url(#ac)"/>
+  <rect x="800" y="240" width="200" height="12" rx="6" fill="#0B1F3A" opacity=".28"/>
+  <rect x="800" y="262" width="150" height="8" rx="4" fill="#0EA5E9" opacity=".8"/>
+  <circle cx="1030" cy="265" r="12" fill="#0B1F3A" opacity=".22"/>
+  <path d="M1095 230c28 14 28 42 0 56" fill="none" stroke="#0EA5E9" stroke-width="5" stroke-linecap="round"/>
+  <path d="M1125 215c36 18 36 56 0 74" fill="none" stroke="#7DD3FC" stroke-width="4" stroke-linecap="round"/>
+  <rect x="80" y="520" width="280" height="48" rx="24" fill="#F97316"/>
+  <text x="220" y="552" text-anchor="middle" fill="#fff" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="700">Cotiza en climatizacionlosangeles.cl</text>
+</svg>
