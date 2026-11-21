@@ -161,17 +161,22 @@
             <label><span>Nombre</span><input type="text" name="nombre" autocomplete="name" required placeholder="Tu nombre"></label>
             <label><span>Teléfono / WhatsApp</span><input type="tel" name="telefono" autocomplete="tel" required placeholder="+56 9 1234 5678" inputmode="tel"></label>
             <label><span>Sector / Barrio</span><input type="text" name="sector" required placeholder="Ej: Paillihue, Sor Vicenta"></label>
-            <label>
-              <span>Tipo de servicio</span>
-              <select name="servicio" required>
-                <option value="Instalación" selected>Instalación</option>
-                <option value="Mantención">Mantención</option>
-                <option value="Reparación">Reparación</option>
-              </select>
-            </label>
-            <label><span>Metros cuadrados <em class="optional">(opcional)</em></span><input type="number" name="metros" min="5" max="200" step="1" placeholder="Ej: 18"></label>
+            <fieldset class="service-checks">
+              <legend>Tipo de servicio</legend>
+              <label class="service-check">
+                <input type="checkbox" name="servicio" value="Instalación" checked>
+                <span>Instalación</span>
+              </label>
+              <label class="service-check">
+                <input type="checkbox" name="servicio" value="Mantención">
+                <span>Mantención</span>
+              </label>
+              <label class="service-check">
+                <input type="checkbox" name="servicio" value="Reparación">
+                <span>Reparación</span>
+              </label>
+            </fieldset>
             <label><span>Mensaje <em class="optional">(opcional)</em></span><textarea name="mensaje" rows="2" placeholder="¿Ya tienes el equipo? Marca y BTU…"></textarea></label>
-            <input type="hidden" name="email" value="">
             <button class="btn btn-accent btn-block" type="submit">Enviar cotización</button>
             <p class="form-status" data-form-status hidden></p>
           </form>

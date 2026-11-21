@@ -150,21 +150,26 @@
         <div class="hero-form-wrap" id="contacto">
           <form class="quote-form compact" id="quote-form" data-origin="mantencion_page" novalidate>
             <h2 class="form-title">Agendar limpieza</h2>
-            <p class="form-sub">Indica barrio y cantidad de equipos.</p>
+            <p class="form-sub">Indica barrio y te confirmamos la visita.</p>
             <label><span>Nombre</span><input type="text" name="nombre" autocomplete="name" required placeholder="Tu nombre"></label>
             <label><span>Teléfono / WhatsApp</span><input type="tel" name="telefono" autocomplete="tel" required placeholder="+56 9 1234 5678" inputmode="tel"></label>
             <label><span>Sector / Barrio</span><input type="text" name="sector" required placeholder="Ej: Las Quintas, Av. Alemania"></label>
-            <label>
-              <span>Tipo de servicio</span>
-              <select name="servicio" required>
-                <option value="Mantención" selected>Mantención</option>
-                <option value="Instalación">Instalación</option>
-                <option value="Reparación">Reparación</option>
-              </select>
-            </label>
-            <label><span>Cantidad / m² <em class="optional">(opcional)</em></span><input type="number" name="metros" min="1" max="200" step="1" placeholder="Ej: 2 equipos"></label>
+            <fieldset class="service-checks">
+              <legend>Tipo de servicio</legend>
+              <label class="service-check">
+                <input type="checkbox" name="servicio" value="Instalación">
+                <span>Instalación</span>
+              </label>
+              <label class="service-check">
+                <input type="checkbox" name="servicio" value="Mantención" checked>
+                <span>Mantención</span>
+              </label>
+              <label class="service-check">
+                <input type="checkbox" name="servicio" value="Reparación">
+                <span>Reparación</span>
+              </label>
+            </fieldset>
             <label><span>Mensaje <em class="optional">(opcional)</em></span><textarea name="mensaje" rows="2" placeholder="¿Huele mal? ¿Gotea? ¿Cuántos equipos?"></textarea></label>
-            <input type="hidden" name="email" value="">
             <button class="btn btn-accent btn-block" type="submit">Solicitar visita</button>
             <p class="form-status" data-form-status hidden></p>
           </form>

@@ -224,12 +224,22 @@ function setFormStatus(form, type, message) {
   status.textContent = message;
 }
 
+function markServicio(form, value) {
+  const match = form.querySelector(`input[name="servicio"][value="${CSS.escape(value)}"]`);
+  if (match) {
+    match.checked = true;
+    return;
+  }
+  if (form.servicio) form.servicio.value = value;
+}
+
 function fillQuoteFromBTU({ btu, m2, sol, uso, extras = "" }) {
   const form = document.getElementById("quote-form");
   if (!form) return;
 
-  if (m2 && form.metros) form.metros.value = String(m2);
-  if (form.servicio && !form.servicio.value) form.servicio.value = "Instalación";
+  if (!form.querySelector('input[name="servicio"]:checked')) {
+    markServicio(form, "Instalación");
+  }
 
   const notes = form.querySelector('[name="mensaje"]');
   if (notes) {
@@ -296,19 +306,33 @@ function initQuoteForm() {
   const form = document.getElementById("quote-form");
   if (!form) return;
 
+  form.querySelectorAll('input[name="servicio"]').forEach((input) => {
+    input.addEventListener("change", () => {
+      form.querySelector('input[name="servicio"]')?.setCustomValidity("");
+    });
+  });
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const data = new FormData(form);
     const nombre = String(data.get("nombre") || "").trim();
     const telefono = String(data.get("telefono") || "").trim();
-    const email = String(data.get("email") || "").trim();
     const sector = String(data.get("sector") || "").trim();
-    const servicio = String(data.get("servicio") || "").trim();
-    const metros = String(data.get("metros") || "").trim();
+    const servicio = data
+      .getAll("servicio")
+      .map((value) => String(value).trim())
+      .filter(Boolean)
+      .join(", ");
     const mensaje = String(data.get("mensaje") || "").trim();
+    const servicioInputs = form.querySelectorAll('input[name="servicio"]');
+    servicioInputs[0]?.setCustomValidity("");
 
-    // CRO: nombre, teléfono, sector y servicio son el mínimo; respeta required HTML extra
+    if (!servicio && servicioInputs[0]) {
+      servicioInputs[0].setCustomValidity("Elige al menos un tipo de servicio.");
+    }
+
+    // CRO: nombre, teléfono, sector y al menos un servicio
     if (!nombre || !telefono || !sector || !servicio || !form.checkValidity()) {
       trackEvent("quote_form_invalid");
       form.reportValidity();
@@ -320,10 +344,8 @@ function initQuoteForm() {
       {
         nombre,
         telefono,
-        email: email || "(no informado)",
         sector,
         servicio,
-        metros: metros ? `${metros} m²` : "(no informado)",
         mensaje: mensaje || "(sin mensaje)",
         ciudad: SITE_CONFIG.city,
         origen: form.dataset.origin || "quote_form",
@@ -535,8 +557,7 @@ function hydrateQuoteFromURL() {
   const sol = params.get("sol");
   const uso = params.get("uso");
 
-  if (m2 && form.metros) form.metros.value = m2;
-  if (form.servicio) form.servicio.value = "Instalación";
+  markServicio(form, "Instalación");
 
   if (btu) {
     const notes = form.querySelector('[name="mensaje"]');

@@ -284,7 +284,7 @@
         <div class="hero-form-wrap" id="contacto">
           <form class="quote-form" id="quote-form" data-origin="home_hero" novalidate>
             <h2 class="form-title">Cotización rápida</h2>
-            <p class="form-sub">4 datos y te respondemos con un estimado claro. Sin compromiso.</p>
+            <p class="form-sub">Marca el servicio y te respondemos con un estimado claro. Sin compromiso.</p>
 
             <label>
               <span>Nombre</span>
@@ -301,25 +301,21 @@
               <input type="text" name="sector" required placeholder="Ej: Paillihue, Av. Alemania">
             </label>
 
-            <label>
-              <span>Tipo de servicio</span>
-              <select name="servicio" required>
-                <option value="">Selecciona una opción</option>
-                <option value="Instalación">Instalación</option>
-                <option value="Mantención">Mantención</option>
-                <option value="Reparación">Reparación</option>
-              </select>
-            </label>
-
-            <label>
-              <span>Metros cuadrados <em class="optional">(opcional)</em></span>
-              <input type="number" name="metros" min="5" max="200" step="1" placeholder="Ej: 18">
-            </label>
-
-            <label>
-              <span>Email <em class="optional">(opcional)</em></span>
-              <input type="email" name="email" autocomplete="email" placeholder="tu@email.cl">
-            </label>
+            <fieldset class="service-checks">
+              <legend>Tipo de servicio</legend>
+              <label class="service-check">
+                <input type="checkbox" name="servicio" value="Instalación">
+                <span>Instalación</span>
+              </label>
+              <label class="service-check">
+                <input type="checkbox" name="servicio" value="Mantención">
+                <span>Mantención</span>
+              </label>
+              <label class="service-check">
+                <input type="checkbox" name="servicio" value="Reparación">
+                <span>Reparación</span>
+              </label>
+            </fieldset>
 
             <label>
               <span>Mensaje <em class="optional">(opcional)</em></span>

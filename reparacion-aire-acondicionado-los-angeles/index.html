@@ -148,17 +148,22 @@
             <label><span>Nombre</span><input type="text" name="nombre" autocomplete="name" required placeholder="Tu nombre"></label>
             <label><span>Teléfono / WhatsApp</span><input type="tel" name="telefono" autocomplete="tel" required placeholder="+56 9 1234 5678" inputmode="tel"></label>
             <label><span>Sector / Barrio</span><input type="text" name="sector" required placeholder="Ej: Villa Galilea, Duqueco"></label>
-            <label>
-              <span>Tipo de servicio</span>
-              <select name="servicio" required>
-                <option value="Reparación" selected>Reparación</option>
-                <option value="Mantención">Mantención</option>
-                <option value="Instalación">Instalación</option>
-              </select>
-            </label>
-            <label><span>Mensaje</span><textarea name="mensaje" rows="3" required placeholder="Ej: no enfría, código E1, gotea, congela cañería, marca del equipo…"></textarea></label>
-            <input type="hidden" name="metros" value="">
-            <input type="hidden" name="email" value="">
+            <fieldset class="service-checks">
+              <legend>Tipo de servicio</legend>
+              <label class="service-check">
+                <input type="checkbox" name="servicio" value="Instalación">
+                <span>Instalación</span>
+              </label>
+              <label class="service-check">
+                <input type="checkbox" name="servicio" value="Mantención">
+                <span>Mantención</span>
+              </label>
+              <label class="service-check">
+                <input type="checkbox" name="servicio" value="Reparación" checked>
+                <span>Reparación</span>
+              </label>
+            </fieldset>
+            <label><span>Mensaje <em class="optional">(opcional)</em></span><textarea name="mensaje" rows="2" placeholder="Ej: no enfría, código E1, gotea, congela cañería, marca del equipo…"></textarea></label>
             <button class="btn btn-accent btn-block" type="submit">Enviar solicitud</button>
             <p class="form-status" data-form-status hidden></p>
           </form>

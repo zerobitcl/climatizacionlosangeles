@@ -521,6 +521,58 @@ textarea {
   font-size: 0.82rem;
 }
 
+.service-checks {
+  border: 0;
+  margin: 0 0 0.85rem;
+  padding: 0;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.service-checks legend {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 0.35rem;
+  padding: 0;
+}
+
+.quote-form .service-check {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin: 0;
+  min-height: 44px;
+  padding: 0.4rem 0.75rem;
+  border: 1px solid #CBD5E1;
+  border-radius: var(--radius-sm);
+  background: #fff;
+  font-weight: 650;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+}
+
+.quote-form .service-check input {
+  width: 1.15rem;
+  height: 1.15rem;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  flex: 0 0 auto;
+  accent-color: var(--sky, #0ea5e9);
+}
+
+.quote-form .service-check:has(input:checked) {
+  border-color: var(--sky);
+  background: rgba(14, 165, 233, 0.1);
+  box-shadow: inset 0 0 0 1px rgba(14, 165, 233, 0.2);
+}
+
+.quote-form .service-check:has(input:focus-visible) {
+  border-color: var(--sky);
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2);
+}
+
 .quote-form label,
 .calc-form label {
   display: grid;
